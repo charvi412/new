@@ -1,0 +1,155 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include<cstring>
+
+std::fstream fp;
+int n = 0;
+char fname[10];
+
+class student
+{
+private:
+    char usn[10], name[10], branch[5];
+
+public:
+    void pack();
+    void unpack(char[]);
+    void display();
+    void search();
+};
+
+void student::pack()
+{
+    char buffer[28];
+    std::cout << "Enter the USN, Name, and Branch: ";
+    std::cin >> usn >> name >> branch;
+    strcpy(buffer, usn);
+    strcat(buffer, "|");
+    strcat(buffer, name);
+    strcat(buffer, "|");
+    strcat(buffer, branch);
+    strcat(buffer, "|");
+    int len = strlen(buffer);
+    while (len < 27)
+    {
+        strcat(buffer, "#");
+        len++;
+    }
+    buffer[27] = '\0';
+    fp << buffer << '\n';
+}
+
+void student::unpack(char buffer[])
+{
+    char *t;
+    t = strtok(buffer, "|");
+    std::cout << "USN: " << t << '\n';
+    t = strtok(NULL, "|");
+    std::cout << "Name: " << t << '\n';
+    t = strtok(NULL, "|");
+    std::cout << "Branch: " << t << '\n';
+}
+
+void student::display()
+{
+    char buffer[28];
+    int i, j;
+    if (n == 0)
+    {
+        std::cout << "No records to display\n";
+        return;
+    }
+    std::cout << "File Contents are\n";
+    fp.open(fname, std::ios::in);
+
+    for (i = 1; i <= n; i++)
+    {
+        fp >> buffer;
+        unpack(buffer);
+        std::cout << '\n';
+    }
+    fp.close();
+}
+
+void student::search()
+{
+    char buffer[28], temp[28];
+    char key[15];
+    char *usn;
+    int i, j, k, choice;
+    std::cout << "Enter the USN to search: ";
+    std::cin >> key;
+    fp.open(fname, std::ios::in | std::ios::out);
+    for (i = 1; i <= n; i++)
+    {
+        fp >> buffer;
+        strcpy(temp, buffer);
+        usn = strtok(temp, "|");
+        if (strcmp(key, usn) == 0)
+        {
+            std::cout << "\nRecord Found..\n";
+            unpack(buffer);
+            std::cout << '\n';
+            std::cout << "\nDo you wish to modify?\n";
+            std::cout << "Enter your choice:\n";
+            std::cout << "1. Yes\n";
+            std::cout << "2. No\n";
+            std::cin >> choice;
+
+            if (choice == 1)
+            {
+                fp.seekp(-27, std::ios::cur);
+                pack();
+            }
+            fp.close();
+            return;
+        }
+    }
+    std::cout << "Record not found..!\n";
+    fp.close();
+}
+
+int main()
+{
+    int i, ch;
+    student s1;
+
+    std::cout << "Enter the File Name: ";
+    std::cin >> fname;
+    fp.open(fname, std::ios::out | std::ios::trunc);
+    fp.close();
+    for (;;)
+    {
+        std::cout << "\n1. Insert\n";
+        std::cout << "2. Display\n";
+        std::cout << "3. Search and Modify\n";
+        std::cout << "4. Exit\n";
+        std::cout << "Enter Your Choice: ";
+        std::cin >> ch;
+
+        switch (ch)
+        {
+        case 1:
+            n++;
+            fp.open(fname, std::ios::app);
+            s1.pack();
+            fp.close();
+            break;
+
+        case 2:
+            s1.display();
+            break;
+
+        case 3:
+            s1.search();
+            break;
+
+        case 4:
+            return 0;
+
+        default:
+            std::cout << "Invalid Choice..!\n";
+        }
+    }
+}
