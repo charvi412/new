@@ -1,0 +1,176 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <string>
+using namespace std;
+
+std::fstream fp1, fp2;
+int n = 0;
+char fname[10];
+
+class student
+{
+private:
+    char usn[15], name[15], branch[5];
+
+public:
+    void pack(int);
+    void unpack(char[]);
+    void display();
+    void search();
+    void modify();
+};
+
+void student::pack(int a)
+{
+    char buffer[100];
+    std::cout << "Enter the student USN, Name, and Branch: ";
+    std::cin >> usn >> name >> branch;
+    strcpy(buffer, usn);
+    strcat(buffer, "|");
+    strcat(buffer, name);
+    strcat(buffer, "|");
+    strcat(buffer, branch);
+    if (a == 1)
+    {
+        fp1 << buffer;
+        fp1 << "\n";
+    }
+    else
+    {
+        fp2 << buffer;
+        fp2 << "\n";
+    }
+}
+
+void student::display()
+{
+    char buffer[100];
+    std::cout << "\nFile Contents are:\n";
+    fp1.open(fname, std::ios::in);
+    for (int i = 1; i <= n; i++)
+    {
+        fp1 >> buffer;
+        unpack(buffer);
+    }
+    fp1.close();
+}
+
+void student::unpack(char buffer[])
+{
+    char *t;
+    t = strtok(buffer, "|");
+    std::cout << "USN: " << t << '\n';
+    t = strtok(NULL, "|");
+    std::cout << "Name: " << t << '\n';
+    t = strtok(NULL, "|");
+    std::cout << "Branch: " << t << '\n';
+}
+
+
+void student::search()
+{
+    char buffer[100];
+    char *usn;
+    char key[15];
+    int i;
+    std::cout << "\nEnter the USN to search: ";
+    std::cin >> key;
+    fp1.open(fname, std::ios::in);
+    fp2.open("out.txt", std::ios::out);
+    for (i = 1; i <= n; i++)
+    {
+        fp1 >> buffer;
+        usn = strtok(buffer, "|");
+        if (strcmp(usn, key) == 0)
+        {
+            std::cout << "Record Found\n";
+            unpack(buffer);
+            std::cout << std::endl;
+            fp1.close();
+            fp2.close();
+            return;
+        }
+        else
+        {
+            fp2 << buffer;
+            fp2 << "\n";
+        }
+    }
+    std::cout << "Record not found";
+    fp1.close();
+    fp2.close();
+    remove("out.txt");
+    exit;
+}
+
+
+void student::modify()
+{char buffer[100], temp[100];
+    
+    char *usn;
+    char key[15];
+    int i, found = 0;
+    std::cout << "\nEnter the USN to modify: ";
+    std::cin >> key;
+    fp1.open(fname, std::ios::in);
+    fp2.open("out.txt", std::ios::out);
+    for (i = 1; i <= n; i++)
+    {
+        fp1 >> buffer;
+        strcpy(temp, buffer);
+        usn = strtok(buffer, "|");
+        if (strcmp(usn, key) == 0)
+        {
+            found = 1;
+            pack(2);
+        }
+        else
+        {
+            fp2 << buffer;
+            fp2 << "\n";
+        }
+    }
+    if (found == 0)
+        std::cout << "Record not found";
+    fp1.close();
+    fp2.close();
+    remove(fname);
+    rename("out.txt", fname);
+}
+
+int main()
+{
+    int i, ch;
+    student s1;
+    std::cout << "Enter the file name: ";
+    std::cin >> fname;
+    fp1.open(fname, std::ios::out | std::ios::trunc);
+    fp1.close();
+    for (;;)
+    {
+        std::cout << "\n1. Insert\n2. Display\n3. Search and Modify\n4. Exit\n";
+        std::cout << "Enter Your Choice: ";
+        std::cin >> ch;
+        switch (ch)
+        {
+        case 1:
+            n++;
+            fp1.open(fname, std::ios::app);
+            s1.pack(1);
+            fp1.close();
+            break;
+        case 2:
+            s1.display();
+            break;
+        case 3:
+            s1.search();
+            break;
+        case 4:
+            s1.modify();
+            break;
+        default:
+            std::cout << "Invalid Choice\n";
+        }
+    }
+}
