@@ -1,0 +1,50 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+    string name[20];
+    int i, low;
+    ifstream fp[10];
+    ofstream fp1;
+
+    fp[1].open("n1.txt");
+    fp[2].open("n2.txt");
+    fp[3].open("n3.txt");
+    fp[4].open("n4.txt");
+    fp[5].open("n5.txt");
+    fp[6].open("n6.txt");
+    fp[7].open("n7.txt");
+    fp[8].open("n8.txt");
+
+    fp1.open("merge.txt");
+    for (i = 1; i <= 8; i++) {
+        fp[i] >> name[i];
+    }
+
+    for (;;) {
+        low = 1;
+        for (i = 1; i <= 8; i++) {
+            if (name[i] < name[low]) {
+                low = i;
+            }
+        }
+        if (name[low] == "~") {
+            fp1.close();
+            for (i = 1; i <= 8; i++) {
+                fp[i].close();
+            }
+            exit(0);
+        } else {
+            fp1 << name[low] << '\n';
+            cout << name[low] << '\n';
+            fp[low] >> name[low];
+            if (fp[low].fail()) {
+                name[low] = "~";
+            }
+        }
+    }
+
+    return 0;
+}
