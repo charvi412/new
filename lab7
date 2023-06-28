@@ -1,0 +1,43 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+ifstream fp1, fp2;
+ofstream fp3;
+
+void match() {
+    string buffer1, buffer2;
+
+    fp1.open("names1.txt");
+    fp2.open("names2.txt");
+    fp3.open("match.txt");
+
+    fp1 >> buffer1;
+    fp2 >> buffer2;
+
+    cout << "Matched Names are ..... " << endl;
+
+    while (!fp1.fail() && !fp2.fail()) {
+        if (buffer1 == buffer2) {
+            fp3 << buffer1 << '\n';
+            cout << buffer1 << '\n';
+            fp1 >> buffer1;
+            fp2 >> buffer2;
+        } else if (buffer1 < buffer2) {
+            fp1 >> buffer1;
+        } else {
+            fp2 >> buffer2;
+        }
+    }
+
+    fp1.close();
+    fp2.close();
+    fp3.close();
+}
+
+int main() {
+    match();
+    return 0;
+}
+
